@@ -1,5 +1,6 @@
 // app/(auth)/signup-success.tsx
 import { useRouter } from "expo-router";
+import LottieView from "lottie-react-native";
 import { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -16,6 +17,12 @@ export default function SignupSuccessScreen() {
 
 	return (
 		<View style={styles.container}>
+			<LottieView
+				source={require("@/assets/lotties/fireworks.json")} // JSON 파일 경로
+				autoPlay
+				loop={false}
+				style={styles.lottie}
+			/>
 			<Text style={styles.emoji}>🎉</Text>
 			<Text style={styles.title}>회원가입 완료!</Text>
 			<Text style={styles.subtitle}>이제 여행을 공유해보세요</Text>
@@ -32,8 +39,13 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 24,
 	},
 	emoji: {
-		fontSize: 64,
+		fontSize: 74,
 		marginBottom: 24,
+	},
+	lottie: {
+		width: 300,
+		height: 300,
+		marginBottom: -30,
 	},
 	title: {
 		fontSize: 28,

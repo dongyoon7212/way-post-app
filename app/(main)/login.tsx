@@ -1,7 +1,11 @@
+import { signinRequest } from "@/api/apis/authApi";
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
 import {
+	Alert,
 	KeyboardAvoidingView,
 	Platform,
 	Pressable,
@@ -36,8 +40,36 @@ export default function LoginScreen() {
 
 	const handleLogin = () => {
 		if (validate()) {
-			console.log("로그인 시도:", email, password);
-			router.replace("/(main)");
+			signinRequest({
+				email: email,
+				password: password,
+			})
+				.then((response) => {
+					if (response.status === 200) {
+						if (!response.data.accessToken) {
+							Alert.alert(
+								"알림",
+								"사용자 정보가 알맞지 않습니다.",
+								[{ text: "확인" }]
+							);
+							Haptics.notificationAsync(
+								Haptics.NotificationFeedbackType.Error
+							);
+							return;
+						}
+				
+						SecureStore.setItemAsync(
+							"accessToken",
+							response.data.accessToken
+						);
+						router.replace("/(main)");
+					}
+				})
+				.catch((error) => {
+					if (error.status !== 200) {
+						alert("문제가 발생했습니다. 다시 시도해 주세요.");
+					}
+				});
 		}
 	};
 

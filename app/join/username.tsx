@@ -1,3 +1,4 @@
+import { usernameDuplChkRequest } from "@/api/apis/authApi";
 import * as Haptics from "expo-haptics";
 import { useLocalSearchParams, useRouter } from "expo-router";
 
@@ -22,12 +23,27 @@ export default function UsernameScreen() {
 		if (!username.trim()) {
 			return;
 		}
-		setError("");
-		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-		router.push({
-			pathname: "/join/password",
-			params: { email, username },
-		});
+
+		usernameDuplChkRequest(username)
+			.then((response) => {
+				if (response.status === 200) {
+					if (response.data === 0) {
+						setError("");
+						Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+						router.push({
+							pathname: "/join/password",
+							params: { email, username },
+						});
+					} else {
+						setError("이미 사용중인 이름입니다.");
+					}
+				}
+			})
+			.catch((error) => {
+				if (error.response.status === 400) {
+					alert("문제가 발생했습니다. 다시 시도해 주세요.");
+				}
+			});
 	};
 
 	return (
@@ -118,6 +134,7 @@ const styles = StyleSheet.create({
 	errorText: {
 		color: "#f00",
 		fontSize: 14,
+		marginLeft: 14,
 	},
 	nextButton: {
 		backgroundColor: "#1E90FF",

@@ -34,11 +34,17 @@ export default function PasswordScreen() {
 			Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
 			return;
 		}
-		setError("");
-		Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-		// 🔐 TODO: API 연동 가능
-		console.log("회원가입:", { email, username, password });
+		const passwordRegEx = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,20}$/;
+
+		if (!passwordRegEx.test(password)) {
+			setError(
+				"비밀번호는 8~20자, 영문 대소문자 + 특수문자를 포함해야 합니다."
+			);
+			Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+			return;
+		}
+
 		try {
 			const result = await signupRequest({
 				email,
@@ -46,13 +52,15 @@ export default function PasswordScreen() {
 				password,
 				passwordConfirm: confirmPassword,
 			});
-			console.log("✅ 회원가입 성공", result);
 			if (result.status === 200) {
+				setError("");
+				Haptics.notificationAsync(
+					Haptics.NotificationFeedbackType.Success
+				);
 				router.replace("/join/success");
 			}
 		} catch (err) {
-			console.error("❌ 회원가입 실패", err);
-			setError("회원가입에 실패했습니다.");
+			alert("회원가입에 실패했습니다. 다시 시도해 주세요.");
 		}
 	};
 
@@ -156,6 +164,7 @@ const styles = StyleSheet.create({
 		color: "#f00",
 		fontSize: 14,
 		marginTop: -10,
+		marginLeft: 14,
 	},
 	submitButton: {
 		backgroundColor: "#1E90FF",

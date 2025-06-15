@@ -9,7 +9,10 @@ export default function JoinLayout() {
 				headerShown: false, // ✅ 상단 헤더 전체 숨김
 			}}
 		>
-			<Stack.Screen name="success" options={{ headerShown: false }} />
+			<Stack.Screen
+				name="success"
+				options={{ headerShown: false, gestureEnabled: false }}
+			/>
 		</Stack>
 	);
 }

@@ -1,47 +1,111 @@
+import { useAuthStore } from "@/stores/useAuthStore";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { Stack, useRouter } from "expo-router";
-import { Pressable, Text } from "react-native";
+import * as SecureStore from "expo-secure-store";
+import { useRef } from "react";
+import { Image, Pressable, Text } from "react-native";
+// @ts-ignore
+import ActionSheet from "react-native-actionsheet";
 
 export default function MainLayout() {
 	const router = useRouter();
+	const { principal, clearAuth } = useAuthStore();
+	const actionSheetRef = useRef<ActionSheet>(null);
+
+	const showActionSheet = () => {
+		Haptics.selectionAsync();
+		actionSheetRef.current?.show();
+	};
+
+	const handleAction = (index: number) => {
+		if (index === 1) {
+			// 로그아웃
+			SecureStore.deleteItemAsync("accessToken");
+			clearAuth();
+			router.replace("/(main)/login");
+		}
+	};
 
 	return (
-		<Stack>
-			{/* 탭 내비게이션은 이 화면에서 동작 */}
-			<Stack.Screen
-				name="index"
-				options={{
-					title: "홈",
-					headerTitleAlign: "center",
-					headerShadowVisible: false,
-					headerBackVisible: false,
-					gestureEnabled: false,
-					headerRight: () => (
-						<Pressable
-							onPress={() => router.push("/(main)/login")}
-							style={{ paddingRight: 16 }}
-						>
-							<Text style={{ fontSize: 16, color: "dodgerblue" }}>
-								로그인
-							</Text>
-						</Pressable>
-					),
-				}}
-			/>
+		<>
+			<Stack>
+				<Stack.Screen
+					name="index"
+					options={{
+						title: "홈",
+						headerTitleAlign: "center",
+						headerShadowVisible: false,
+						headerBackVisible: false,
+						gestureEnabled: false,
+						headerRight: () =>
+							principal ? (
+								<Pressable
+									onPress={() =>
+										router.push("/(main)/profile")
+									}
+									style={{ paddingRight: 16 }}
+								>
+									<Image
+										source={{ uri: principal?.profileImg }}
+										style={{
+											width: 36,
+											height: 36,
+											borderRadius: 20,
+										}}
+									/>
+								</Pressable>
+							) : (
+								<Pressable
+									onPress={() => router.push("/(main)/login")}
+									style={{ paddingRight: 16 }}
+								>
+									<Text
+										style={{
+											fontSize: 16,
+											color: "dodgerblue",
+										}}
+									>
+										로그인
+									</Text>
+								</Pressable>
+							),
+					}}
+				/>
 
-			{/* 로그인은 Stack 안에 포함되므로 header 자동으로 생김 */}
-			<Stack.Screen
-				name="login"
-				options={{
-					title: "",
-					headerTitleAlign: "center",
-					headerShadowVisible: false,
-				}}
+				<Stack.Screen
+					name="profile"
+					options={{
+						title: principal?.username,
+						headerTitleAlign: "center",
+						headerShadowVisible: true,
+						headerRight: () => (
+							<Pressable
+								onPress={showActionSheet}
+								style={{ paddingRight: 16 }}
+							>
+								<Ionicons name="menu" size={24} color="#333" />
+							</Pressable>
+						),
+					}}
+				/>
+				<Stack.Screen
+					name="post/[photoPostId]"
+					options={{
+						title: "",
+					}}
+				/>
+			</Stack>
+
+			{/* 액션시트 */}
+			<ActionSheet
+				ref={actionSheetRef}
+				title={"설정"}
+				options={["취소", "로그아웃"]}
+				cancelButtonIndex={0}
+				destructiveButtonIndex={1}
+				onPress={handleAction}
 			/>
-		</Stack>
+		</>
 	);
 }
-
-//Haptics.selectionAsync()	가장 짧고 가벼운 선택 피드백 (UI 요소 클릭용)
-// Haptics.impactAsync('light')	가벼운 충격
-// Haptics.impactAsync('medium')	중간 충격
-// Haptics.notificationAsync('success')	성공 알림용

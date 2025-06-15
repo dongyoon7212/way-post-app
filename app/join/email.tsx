@@ -1,3 +1,4 @@
+import { emailDuplChkRequest } from "@/api/apis/authApi";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -26,12 +27,31 @@ export default function EmailScreen() {
 			Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
 			return;
 		}
-		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-		setError("");
-		router.push({
-			pathname: "/join/username",
-			params: { email },
-		});
+
+		emailDuplChkRequest(email)
+			.then((response) => {
+				if (response.status === 200) {
+					if (response.data === 0) {
+						Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+						setError("");
+						router.push({
+							pathname: "/join/username",
+							params: { email },
+						});
+					} else {
+						setError("이미 존재하는 이메일 입니다.");
+						Haptics.notificationAsync(
+							Haptics.NotificationFeedbackType.Warning
+						);
+						return;
+					}
+				}
+			})
+			.catch((error) => {
+				if (error.response.status === 400) {
+					alert("문제가 발생했습니다. 다시 시도해 주세요.");
+				}
+			});
 	};
 
 	return (
@@ -121,6 +141,7 @@ const styles = StyleSheet.create({
 	errorText: {
 		color: "#f00",
 		fontSize: 14,
+		marginLeft: 14,
 	},
 	nextButton: {
 		backgroundColor: "#1E90FF",
