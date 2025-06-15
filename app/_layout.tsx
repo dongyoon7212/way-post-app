@@ -1,12 +1,12 @@
-import { Stack } from "expo-router";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Slot } from "expo-router";
+
+const queryClient = new QueryClient();
 
 export default function Layout() {
 	return (
-		<Stack screenOptions={{ headerShown: false }}>
-			<Stack.Screen
-				name="(main)"
-				options={{ headerShown: false, animation: "fade" }} // ✅ 상단 제목 제거
-			/>
-		</Stack>
+		<QueryClientProvider client={queryClient}>
+			<Slot />
+		</QueryClientProvider>
 	);
 }

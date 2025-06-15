@@ -7,7 +7,7 @@ export default function SplashScreen() {
 
 	useEffect(() => {
 		const timeout = setTimeout(() => {
-			router.replace("/(auth)/login");
+			router.replace("/(main)");
 		}, 2000); // 2초 후 로그인 화면으로 이동
 
 		return () => clearTimeout(timeout);

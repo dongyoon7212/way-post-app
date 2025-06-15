@@ -1,21 +1,43 @@
-import * as Haptics from "expo-haptics";
-import { Tabs, useRouter } from "expo-router";
+import { Stack, useRouter } from "expo-router";
+import { Pressable, Text } from "react-native";
 
-export default function TabLayout() {
+export default function MainLayout() {
 	const router = useRouter();
 
 	return (
-		<Tabs
-			screenListeners={{
-				tabPress: () => {
-					Haptics.selectionAsync(); // 탭 터치 시 짧은 햅틱 진동
-				},
-			}}
-		>
-			<Tabs.Screen name="index" options={{ title: "홈" }} />
-			<Tabs.Screen name="explore" options={{ title: "탐색" }} />
-			<Tabs.Screen name="login" options={{ title: "로그인" }} />
-		</Tabs>
+		<Stack>
+			{/* 탭 내비게이션은 이 화면에서 동작 */}
+			<Stack.Screen
+				name="index"
+				options={{
+					title: "홈",
+					headerTitleAlign: "center",
+					headerShadowVisible: false,
+					headerBackVisible: false,
+					gestureEnabled: false,
+					headerRight: () => (
+						<Pressable
+							onPress={() => router.push("/(main)/login")}
+							style={{ paddingRight: 16 }}
+						>
+							<Text style={{ fontSize: 16, color: "dodgerblue" }}>
+								로그인
+							</Text>
+						</Pressable>
+					),
+				}}
+			/>
+
+			{/* 로그인은 Stack 안에 포함되므로 header 자동으로 생김 */}
+			<Stack.Screen
+				name="login"
+				options={{
+					title: "",
+					headerTitleAlign: "center",
+					headerShadowVisible: false,
+				}}
+			/>
+		</Stack>
 	);
 }
 
