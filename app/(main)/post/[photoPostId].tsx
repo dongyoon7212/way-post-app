@@ -15,7 +15,6 @@ import {
 	StyleSheet,
 	TouchableWithoutFeedback,
 	UIManager,
-	View,
 } from "react-native";
 
 const screenWidth = Dimensions.get("window").width;
@@ -82,36 +81,35 @@ export default function PostDetailScreen() {
 	return (
 		<KeyboardAvoidingView
 			behavior={Platform.OS === "ios" ? "padding" : "height"}
-			keyboardVerticalOffset={Platform.OS === "ios" ? 98 : 0} // ✅ 추가
+			keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0} // ✅ 추가
 			style={{ flex: 1 }}
 		>
 			<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-				<View style={{ flex: 1 }}>
-					<FlatList
-						data={postGroup}
-						ref={listRef}
-						keyExtractor={(item) => item.photoPostId.toString()}
-						keyboardShouldPersistTaps="handled"
-						removeClippedSubviews={false}
-						scrollEnabled={true}
-						onScrollToIndexFailed={({ index }) => {
-							setTimeout(() => {
-								listRef.current?.scrollToIndex({
-									index,
-									animated: false,
-								});
-							}, 50);
-						}}
-						contentContainerStyle={{ paddingBottom: 100 }}
-						renderItem={({ item }) => (
-							<PostItem
-								item={item}
-								isOpened={openedPostId === item.photoPostId}
-								toggleCommentOpen={toggleCommentOpen}
-							/>
-						)}
-					/>
-				</View>
+				<FlatList
+					data={postGroup}
+					ref={listRef}
+					keyExtractor={(item) => item.photoPostId.toString()}
+					keyboardShouldPersistTaps="handled"
+					removeClippedSubviews={false}
+					scrollEnabled={true}
+					onScrollToIndexFailed={({ index }) => {
+						setTimeout(() => {
+							listRef.current?.scrollToIndex({
+								index,
+								animated: false,
+							});
+						}, 50);
+					}}
+					contentContainerStyle={{ paddingBottom: 100 }}
+					renderItem={({ item }) => (
+						<PostItem
+							item={item}
+							isOpened={openedPostId === item.photoPostId}
+							toggleCommentOpen={toggleCommentOpen}
+						/>
+					)}
+					style={styles.postContainer}
+				/>
 			</TouchableWithoutFeedback>
 		</KeyboardAvoidingView>
 	);
