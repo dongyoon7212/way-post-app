@@ -3,8 +3,10 @@ import { addComment } from "@/api/apis/postApi";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Comment, PhotoPost } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { memo, useRef, useState } from "react";
+
 import {
 	Alert,
 	Image,
@@ -44,6 +46,7 @@ function PostItem({ item, isOpened, toggleCommentOpen, onCommentAdd }: Props) {
 	}
 
 	const handleToggleComment = () => {
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 		LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
 		toggleCommentOpen(item.photoPostId);
 		if (!isOpened) {
