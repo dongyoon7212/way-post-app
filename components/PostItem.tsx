@@ -1,8 +1,12 @@
 // components/PostItem.tsx
+import { addComment } from "@/api/apis/postApi";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { Comment, PhotoPost } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { memo, useRef, useState } from "react";
 import {
+	Alert,
 	Image,
 	Keyboard,
 	LayoutAnimation,
@@ -19,11 +23,13 @@ type Props = {
 	item: PhotoPost;
 	isOpened: boolean;
 	toggleCommentOpen: (postId: number) => void;
+	onCommentAdd: (postId: number, newComment: Comment) => void; // 추가
 };
 
-function PostItem({ item, isOpened, toggleCommentOpen }: Props) {
+function PostItem({ item, isOpened, toggleCommentOpen, onCommentAdd }: Props) {
 	const [commentText, setCommentText] = useState("");
-
+	const { principal } = useAuthStore();
+	const router = useRouter();
 	const inputRef = useRef<TextInput>(null);
 
 	if (!isOpened) {
@@ -44,6 +50,39 @@ function PostItem({ item, isOpened, toggleCommentOpen }: Props) {
 			setTimeout(() => {
 				inputRef.current?.focus();
 			}, 200);
+		}
+	};
+
+	const handleSubmitComment = (photoPostId: number, userId: number) => {
+		if (principal === undefined || principal == null) {
+			Alert.alert("알림", "로그인 후 댓글을 작성해주세요.");
+			return;
+		} else {
+			if (principal?.userRoles[0].roleId === 3) {
+				Alert.alert("알림", "이메일 인증 필요");
+				return;
+			}
+			if (commentText.trim() === "") {
+				Alert.alert("알림", "댓글을 입력해주세요.");
+				return;
+			}
+			addComment({
+				photoPostId: photoPostId,
+				userId: userId,
+				content: commentText,
+			}).then((response: any) => {
+				if (response.status === 200) {
+					const { comment, user } = response.data;
+					const newComment = {
+						...comment,
+						user: user.user,
+					};
+
+					onCommentAdd(item.photoPostId, newComment); // 여기서 호출
+					setCommentText("");
+					Keyboard.dismiss();
+				}
+			});
 		}
 	};
 
@@ -97,12 +136,18 @@ function PostItem({ item, isOpened, toggleCommentOpen }: Props) {
 				<>
 					<View style={styles.comments}>
 						{item.comments.map((c: Comment) => (
-							<Text key={c.commentId} style={styles.comment}>
-								<Text style={styles.commentAuthor}>
-									{c.user.username}
-								</Text>{" "}
-								{c.content}
-							</Text>
+							<View key={c.commentId} style={styles.comment}>
+								<Image
+									source={{ uri: c.user.profileImg }}
+									style={styles.commentAvatar}
+								/>
+								<Text style={styles.commentText}>
+									<Text style={styles.commentAuthor}>
+										{c.user.username}
+									</Text>{" "}
+									{c.content}
+								</Text>
+							</View>
 						))}
 					</View>
 
@@ -119,9 +164,19 @@ function PostItem({ item, isOpened, toggleCommentOpen }: Props) {
 						/>
 						<Pressable
 							onPress={() => {
-								// submit 로직 여기에 구현
-								Keyboard.dismiss();
-								setCommentText("");
+								if (principal == undefined) {
+									Alert.alert(
+										"알림",
+										"로그인 후 댓글을 작성해주세요."
+									);
+								} else {
+									handleSubmitComment(
+										item.photoPostId,
+										principal.userId
+									);
+									Keyboard.dismiss();
+									setCommentText("");
+								}
 							}}
 						>
 							<Text style={styles.submitButton}>게시</Text>
@@ -160,6 +215,7 @@ const styles = StyleSheet.create({
 		borderRadius: 16,
 		marginRight: 8,
 	},
+
 	username: {
 		fontSize: 16,
 		fontWeight: "bold",
@@ -182,13 +238,7 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 12,
 		marginTop: 6,
 	},
-	comment: {
-		fontSize: 14,
-		marginBottom: 4,
-	},
-	commentAuthor: {
-		fontWeight: "bold",
-	},
+
 	commentInputContainer: {
 		flexDirection: "row",
 		alignItems: "center",
@@ -207,5 +257,23 @@ const styles = StyleSheet.create({
 		color: "dodgerblue",
 		fontWeight: "bold",
 		marginLeft: 12,
+	},
+	comment: {
+		flexDirection: "row",
+		alignItems: "center",
+		marginBottom: 6,
+	},
+	commentAvatar: {
+		width: 24,
+		height: 24,
+		borderRadius: 12,
+		marginRight: 8,
+	},
+	commentText: {
+		fontSize: 14,
+		flexShrink: 1, // 내용이 길어지면 자동 줄바꿈
+	},
+	commentAuthor: {
+		fontWeight: "bold",
 	},
 });

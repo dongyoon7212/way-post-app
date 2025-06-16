@@ -1,6 +1,6 @@
 import { getPhotoPostListByUserId } from "@/api/apis/postApi";
 import PostItem from "@/components/PostItem";
-import { PhotoPost } from "@/types";
+import { Comment, PhotoPost } from "@/types";
 import * as Haptics from "expo-haptics";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -78,6 +78,22 @@ export default function PostDetailScreen() {
 		});
 	}, []);
 
+	const handleAddComment = (postId: number, newComment: Comment) => {
+		setPostGroup((prevPosts) =>
+			prevPosts.map((post) =>
+				post.photoPostId === postId
+					? {
+							...post,
+							comments: [
+								...(post.comments as Comment[]),
+								newComment,
+							],
+					  }
+					: post
+			)
+		);
+	};
+
 	return (
 		<KeyboardAvoidingView
 			behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -106,6 +122,7 @@ export default function PostDetailScreen() {
 							item={item}
 							isOpened={openedPostId === item.photoPostId}
 							toggleCommentOpen={toggleCommentOpen}
+							onCommentAdd={handleAddComment}
 						/>
 					)}
 					style={styles.postContainer}
