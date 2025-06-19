@@ -57,7 +57,7 @@ export default function LoginScreen() {
 							);
 							return;
 						}
-				
+
 						SecureStore.setItemAsync(
 							"accessToken",
 							response.data.accessToken

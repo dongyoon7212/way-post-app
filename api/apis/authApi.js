@@ -3,7 +3,6 @@ import { instance } from "../utils/instance";
 
 export const getPrincipal = async () => {
 	const token = await SecureStore.getItemAsync("accessToken");
-
 	if (!token) return null;
 
 	try {

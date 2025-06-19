@@ -35,7 +35,6 @@ export default function MainLayout() {
 					options={{
 						title: "홈",
 						headerTitleAlign: "center",
-						headerShadowVisible: false,
 						headerBackVisible: false,
 						gestureEnabled: false,
 						headerRight: () =>
@@ -44,7 +43,7 @@ export default function MainLayout() {
 									onPress={() =>
 										router.push("/(main)/profile")
 									}
-									style={{ paddingRight: 16 }}
+									style={{ paddingRight: 0 }}
 								>
 									<Image
 										source={{ uri: principal?.profileImg }}
@@ -58,7 +57,7 @@ export default function MainLayout() {
 							) : (
 								<Pressable
 									onPress={() => router.push("/(main)/login")}
-									style={{ paddingRight: 16 }}
+									style={{ paddingRight: 0 }}
 								>
 									<Text
 										style={{
@@ -82,7 +81,7 @@ export default function MainLayout() {
 						headerRight: () => (
 							<Pressable
 								onPress={showActionSheet}
-								style={{ paddingRight: 16 }}
+								style={{ paddingRight: 0 }}
 							>
 								<Ionicons name="menu" size={24} color="#333" />
 							</Pressable>

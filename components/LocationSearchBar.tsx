@@ -30,14 +30,16 @@ export default function LocationSearchBar({ onLocationSelect }: Props) {
 
 					try {
 						const details = await getPlaceDetails(placeId);
-						console.log(details);
 						onLocationSelect(details.lat, details.lng);
 					} catch (err) {
 						console.warn("위치 정보를 불러오지 못했습니다.", err);
 					}
 				}}
-				minCharsToFetch={2}
+				minCharsToFetch={1}
+				placeHolderText="어디로 떠나시나요?"
 				languageCode="ko"
+				showLoadingIndicator={true}
+				showClearButton={false}
 			/>
 		</View>
 	);
@@ -46,31 +48,13 @@ export default function LocationSearchBar({ onLocationSelect }: Props) {
 const styles = StyleSheet.create({
 	container: {
 		position: "absolute",
-		top: 50,
-		left: 10,
-		right: 10,
-		zIndex: 10,
-	},
-	inputContainer: {
-		backgroundColor: "#fff",
-		borderRadius: 8,
-	},
-	input: {
-		height: 45,
-		paddingHorizontal: 12,
-		fontSize: 16,
-		borderColor: "#ddd",
-		borderWidth: 1,
-	},
-	suggestionsContainer: {
-		backgroundColor: "#fff",
-		maxHeight: 250,
-	},
-	suggestionItem: {
-		padding: 12,
-	},
-	suggestionText: {
-		fontSize: 16,
-		color: "#333",
+		right: 55,
+		top: 15,
+		left: 0,
+		// elevation: 20,
+		// shadowColor: "#000",
+		// shadowOffset: { width: 0, height: 1 },
+		// shadowOpacity: 0.2,
+		// shadowRadius: 3,
 	},
 });
