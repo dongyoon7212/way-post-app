@@ -5,7 +5,7 @@ import { User } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import * as Location from "expo-location";
-import { useNavigation } from "expo-router";
+import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import LottieView from "lottie-react-native";
 import { useEffect, useRef, useState } from "react";
@@ -28,7 +28,7 @@ export default function HomeScreen() {
 	const mapRef = useRef<MapView>(null);
 	const [showActionOptions, setShowActionOptions] = useState(false);
 	const lottieRef = useRef<LottieView>(null);
-	const navigate = useNavigation();
+	const router = useRouter();
 
 	const actionAnim = useRef(new Animated.Value(0)).current;
 
@@ -111,7 +111,7 @@ export default function HomeScreen() {
 		if (showSearchBar) {
 			Animated.timing(searchBarAnim, {
 				toValue: 0,
-				duration: 200,
+				duration: 100,
 				easing: Easing.out(Easing.ease),
 				useNativeDriver: true,
 			}).start(() => {
@@ -123,7 +123,7 @@ export default function HomeScreen() {
 			setShowSearchBar(true); // 먼저 보이게 하고
 			Animated.timing(searchBarAnim, {
 				toValue: 1,
-				duration: 200,
+				duration: 100,
 				easing: Easing.out(Easing.ease),
 				useNativeDriver: true,
 			}).start();
@@ -194,7 +194,7 @@ export default function HomeScreen() {
 					style={[styles.fabOption, { bottom: 90 }]}
 					onPress={() => {
 						setShowActionOptions(false);
-						// navigate.navigate("PostWrite"); // ← 게시물 작성 화면으로
+						router.push("/(main)/post/uploadPost"); // ← 게시물 작성 화면으로
 					}}
 				>
 					<Text style={styles.fabOptionText}>게시물 추가</Text>

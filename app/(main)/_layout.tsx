@@ -94,6 +94,14 @@ export default function MainLayout() {
 						title: "",
 					}}
 				/>
+				<Stack.Screen
+					name="post/uploadPost"
+					options={{
+						title: "게시물 추가",
+						presentation: "modal",
+						animation: "slide_from_bottom",
+					}}
+				/>
 			</Stack>
 
 			{/* 액션시트 */}
