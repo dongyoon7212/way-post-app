@@ -1,22 +1,30 @@
-import LocationSearchBar from "@/components/LocationSearchBar"; // 재사용
+import { useLocationStore } from "@/stores/useLocationStore";
 import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
 	Image,
-	ScrollView,
+	Platform,
 	StyleSheet,
 	Text,
 	TextInput,
 	TouchableOpacity,
 	View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 export default function UploadPostScreen() {
 	const [imageUri, setImageUri] = useState<string | null>(null);
 	const [content, setContent] = useState("");
 	const [cameraModel, setCameraModel] = useState("");
 	const [location, setLocation] = useState("");
+	const router = useRouter();
+	const { lat, lng } = useLocationStore();
+
+	useEffect(() => {
+		setLocation(`${lat}${lng}`);
+	}, [lat, lng]);
 
 	const pickImage = async () => {
 		const result = await ImagePicker.launchImageLibraryAsync({
@@ -35,87 +43,88 @@ export default function UploadPostScreen() {
 				if (asset.exif.GPSLatitude && asset.exif.GPSLongitude) {
 					const lat = asset.exif.GPSLatitude;
 					const lng = asset.exif.GPSLongitude;
-					setLocation(`${lat}, ${lng}`);
+					setLocation(`${lat}${lng}`);
 				}
 			}
 		}
 	};
 
 	return (
-		<ScrollView contentContainerStyle={styles.container}>
-			{/* 제목 */}
-			<Text style={styles.header}>게시물 작성</Text>
+		<View style={styles.wrapper}>
+			<KeyboardAwareScrollView
+				contentContainerStyle={styles.container}
+				enableOnAndroid
+				extraScrollHeight={100}
+				keyboardShouldPersistTaps="handled"
+			>
+				{/* 사진 업로드 */}
+				<TouchableOpacity style={styles.imageBox} onPress={pickImage}>
+					{imageUri ? (
+						<Image
+							source={{ uri: imageUri }}
+							style={styles.image}
+						/>
+					) : (
+						<Feather name="camera" size={32} color="#888" />
+					)}
+				</TouchableOpacity>
 
-			{/* 사진 업로드 */}
-			<TouchableOpacity style={styles.imageBox} onPress={pickImage}>
-				{imageUri ? (
-					<Image source={{ uri: imageUri }} style={styles.image} />
-				) : (
-					<Feather name="camera" size={32} color="#888" />
-				)}
-			</TouchableOpacity>
-
-			{/* 본문 */}
-			<TextInput
-				style={[styles.input, styles.textarea]}
-				placeholder="내용을 작성하세요"
-				multiline
-				value={content}
-				onChangeText={setContent}
-			/>
-
-			{cameraModel ? (
+				{/* 본문 */}
 				<TextInput
-					style={[
-						styles.input,
-						{ backgroundColor: "#eee", color: "#666" },
-					]}
-					value={cameraModel}
-					editable={false}
+					style={[styles.input, styles.textarea]}
+					placeholder="내용을 작성하세요"
+					multiline
+					value={content}
+					onChangeText={setContent}
 				/>
-			) : (
+
+				{/* 카메라 모델 */}
 				<TextInput
-					style={styles.input}
+					style={[styles.input, cameraModel ? styles.readonly : null]}
 					placeholder="카메라 모델 입력"
 					value={cameraModel}
 					onChangeText={setCameraModel}
+					editable={!cameraModel}
 				/>
-			)}
 
-			{location ? (
-				<View style={styles.input}>
-					<Text style={{ color: "#444" }}>{location}</Text>
-				</View>
-			) : (
-				<View style={{ marginVertical: 10 }}>
-					<Text style={{ marginBottom: 5, color: "#444" }}>
-						위치 선택
-					</Text>
-					<LocationSearchBar
-						onLocationSelect={(lat, lng) =>
-							setLocation(`${lat}, ${lng}`)
+				{/* 위치 정보 텍스트 */}
+				{location ? (
+					<View style={[styles.input, styles.readonly]}>
+						<Text style={{ color: "#444" }}>{location}</Text>
+					</View>
+				) : (
+					<TouchableOpacity
+						style={styles.searchLocationBtn}
+						onPress={() =>
+							router.push("/(main)/post/selectLocation")
 						}
-					/>
-				</View>
-			)}
+					>
+						<Text style={{ color: "#1E90FF", fontSize: 16 }}>
+							📍 위치 검색하기
+						</Text>
+					</TouchableOpacity>
+				)}
 
-			{/* 등록 버튼 */}
-			<TouchableOpacity style={styles.submitButton}>
-				<Text style={styles.submitText}>등록</Text>
-			</TouchableOpacity>
-		</ScrollView>
+				<View style={{ height: 120 }} />
+			</KeyboardAwareScrollView>
+
+			{/* 등록 버튼 고정 */}
+			<View style={styles.fixedButtonContainer}>
+				<TouchableOpacity style={styles.submitButton}>
+					<Text style={styles.submitText}>등록</Text>
+				</TouchableOpacity>
+			</View>
+		</View>
 	);
 }
 
 const styles = StyleSheet.create({
-	container: {
-		padding: 20,
+	wrapper: {
+		flex: 1,
 		backgroundColor: "#fff",
 	},
-	header: {
-		fontSize: 22,
-		fontWeight: "bold",
-		marginBottom: 20,
+	container: {
+		padding: 20,
 	},
 	imageBox: {
 		width: "100%",
@@ -138,16 +147,39 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		marginBottom: 15,
 	},
+	readonly: {
+		backgroundColor: "#eee",
+		color: "#666",
+	},
 	textarea: {
 		height: 120,
 		textAlignVertical: "top",
+	},
+	fixedButtonContainer: {
+		position: "absolute",
+		bottom: 0,
+		left: 0,
+		right: 0,
+		paddingHorizontal: 20,
+		paddingTop: 20,
+		paddingBottom: Platform.OS === "ios" ? 30 : 20,
+		backgroundColor: "#fff",
+		borderTopWidth: 1,
+		borderColor: "#ddd",
+	},
+	searchLocationBtn: {
+		marginBottom: 15,
+		padding: 14,
+		borderRadius: 10,
+		backgroundColor: "#f5f5f5",
+		alignItems: "center",
+		justifyContent: "center",
 	},
 	submitButton: {
 		backgroundColor: "#1E90FF",
 		paddingVertical: 14,
 		borderRadius: 10,
 		alignItems: "center",
-		marginTop: 20,
 	},
 	submitText: {
 		color: "white",

@@ -224,6 +224,7 @@ export default function HomeScreen() {
 				>
 					<LocationSearchBar
 						onLocationSelect={handleLocationSelect}
+						placeholderText="어디로 떠나볼까요?"
 					/>
 				</Animated.View>
 			)}

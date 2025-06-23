@@ -4,9 +4,13 @@ import GooglePlacesTextInput from "react-native-google-places-textinput";
 
 type Props = {
 	onLocationSelect: (lat: number, lng: number) => void;
+	placeholderText: string;
 };
 
-export default function LocationSearchBar({ onLocationSelect }: Props) {
+export default function LocationSearchBar({
+	onLocationSelect,
+	placeholderText,
+}: Props) {
 	const getPlaceDetails = async (placeId: string) => {
 		const response = await fetch(
 			`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY}`
@@ -36,7 +40,7 @@ export default function LocationSearchBar({ onLocationSelect }: Props) {
 					}
 				}}
 				minCharsToFetch={1}
-				placeHolderText="어디로 떠나시나요?"
+				placeHolderText={placeholderText}
 				languageCode="ko"
 				showLoadingIndicator={true}
 				showClearButton={false}

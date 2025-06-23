@@ -102,6 +102,14 @@ export default function MainLayout() {
 						animation: "slide_from_bottom",
 					}}
 				/>
+				<Stack.Screen
+					name="post/selectLocation"
+					options={{
+						title: "위치 선택",
+						presentation: "modal",
+						animation: "slide_from_bottom",
+					}}
+				/>
 			</Stack>
 
 			{/* 액션시트 */}
