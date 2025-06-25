@@ -100,6 +100,15 @@ export default function MainLayout() {
 						title: "게시물 추가",
 						presentation: "modal",
 						animation: "slide_from_bottom",
+						headerLeft: () => (
+							<Pressable onPress={() => router.back()}>
+								<Text
+									style={{ fontSize: 16, color: "#1E90FF" }}
+								>
+									취소
+								</Text>
+							</Pressable>
+						),
 					}}
 				/>
 				<Stack.Screen
@@ -108,6 +117,15 @@ export default function MainLayout() {
 						title: "위치 선택",
 						presentation: "modal",
 						animation: "slide_from_bottom",
+						headerLeft: () => (
+							<Pressable onPress={() => router.back()}>
+								<Text
+									style={{ fontSize: 16, color: "#1E90FF" }}
+								>
+									취소
+								</Text>
+							</Pressable>
+						),
 					}}
 				/>
 			</Stack>
