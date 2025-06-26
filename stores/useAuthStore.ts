@@ -2,13 +2,13 @@ import { User } from "@/types";
 import { create } from "zustand";
 
 type AuthState = {
-	principal: User | undefined;
+	principal: User | null;
 	setAuth: (user: AuthState["principal"]) => void;
 	clearAuth: () => void;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
-	principal: undefined,
+	principal: null,
 	setAuth: (user) => set({ principal: user }),
-	clearAuth: () => set({ principal: undefined }),
+	clearAuth: () => set({ principal: null }),
 }));

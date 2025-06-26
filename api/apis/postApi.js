@@ -2,8 +2,15 @@ import * as SecureStore from "expo-secure-store";
 import { instance } from "../utils/instance";
 
 export const uploadPhotoPost = async (data) => {
+	const token = await SecureStore.getItemAsync("accessToken");
+
+	if (!token) return null;
 	try {
-		const response = instance.post("/post/photo/upload", data);
+		const response = instance.post("/post/photo/upload", data, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
 		return response;
 	} catch (error) {
 		return error;

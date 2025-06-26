@@ -57,6 +57,7 @@ export default function LoginScreen() {
 							);
 							return;
 						}
+						console.log("로그인 성공", response.data.accessToken);
 
 						SecureStore.setItemAsync(
 							"accessToken",

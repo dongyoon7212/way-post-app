@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useLocationStore } from "@/stores/useLocationStore";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Stack, useRouter } from "expo-router";
@@ -11,6 +12,7 @@ import ActionSheet from "react-native-actionsheet";
 export default function MainLayout() {
 	const router = useRouter();
 	const { principal, clearAuth } = useAuthStore();
+	const { clearLocation } = useLocationStore();
 	const actionSheetRef = useRef<ActionSheet>(null);
 
 	const showActionSheet = () => {
@@ -101,7 +103,12 @@ export default function MainLayout() {
 						presentation: "modal",
 						animation: "slide_from_bottom",
 						headerLeft: () => (
-							<Pressable onPress={() => router.back()}>
+							<Pressable
+								onPress={() => {
+									router.back();
+									clearLocation();
+								}}
+							>
 								<Text
 									style={{ fontSize: 16, color: "#1E90FF" }}
 								>

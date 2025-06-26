@@ -16,9 +16,7 @@ export default function SelectLocation() {
 				<LocationSearchBar
 					placeholderText="예: 서울, 뉴욕, 파리..."
 					onLocationSelect={(lat, lng) => {
-						useLocationStore
-							.getState()
-							.setLocation(lat.toString(), lng.toString());
+						useLocationStore.getState().setLocation(lat, lng);
 						router.back();
 					}}
 				/>

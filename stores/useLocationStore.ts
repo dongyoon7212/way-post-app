@@ -1,15 +1,15 @@
 import { create } from "zustand";
 
 type LocationState = {
-	lat: string | "";
-	lng: string | "";
-	setLocation: (lat: string, lng: string) => void;
+	lat: number | null;
+	lng: number | null;
+	setLocation: (lat: number, lng: number) => void;
 	clearLocation: () => void;
 };
 
 export const useLocationStore = create<LocationState>((set) => ({
-	lat: "",
-	lng: "",
+	lat: null,
+	lng: null,
 	setLocation: (lat, lng) => set({ lat, lng }),
-	clearLocation: () => set({ lat: "", lng: "" }),
+	clearLocation: () => set({ lat: null, lng: null }),
 }));

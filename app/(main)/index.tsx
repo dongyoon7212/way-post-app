@@ -4,12 +4,14 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { User } from "@/types";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
+import * as Haptics from "expo-haptics";
 import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import LottieView from "lottie-react-native";
 import { useEffect, useRef, useState } from "react";
 import {
+	Alert,
 	Animated,
 	Easing,
 	StyleSheet,
@@ -27,6 +29,7 @@ export default function HomeScreen() {
 	const [showSearchBar, setShowSearchBar] = useState(false);
 	const mapRef = useRef<MapView>(null);
 	const [showActionOptions, setShowActionOptions] = useState(false);
+	const { principal } = useAuthStore();
 	const lottieRef = useRef<LottieView>(null);
 	const router = useRouter();
 
@@ -68,7 +71,7 @@ export default function HomeScreen() {
 		);
 	};
 
-	const { data, isLoading } = useQuery<User>({
+	const { data, isLoading, isError, isSuccess } = useQuery<User>({
 		queryKey: ["getPrincipal"],
 		queryFn: getPrincipal,
 		retry: 2,
@@ -78,13 +81,13 @@ export default function HomeScreen() {
 	const isMapLoading = !(isMapReady && isPostLoaded && isLoading);
 
 	useEffect(() => {
-		if (!!data) {
+		if (isSuccess && data) {
 			useAuthStore.getState().setAuth(data);
-		} else {
+		} else if (isError) {
 			SecureStore.deleteItemAsync("accessToken");
 			useAuthStore.getState().clearAuth();
 		}
-	}, [data]);
+	}, [isSuccess, isError, data]);
 
 	useEffect(() => {
 		(async () => {
@@ -108,6 +111,7 @@ export default function HomeScreen() {
 	}, []);
 
 	const toggleSearchBar = () => {
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 		if (showSearchBar) {
 			Animated.timing(searchBarAnim, {
 				toValue: 0,
@@ -136,6 +140,8 @@ export default function HomeScreen() {
 	});
 
 	const handleGoToCurrentLocation = async () => {
+		Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
 		try {
 			let location = await Location.getCurrentPositionAsync({});
 			const { latitude, longitude } = location.coords;
@@ -193,6 +199,17 @@ export default function HomeScreen() {
 				<TouchableOpacity
 					style={[styles.fabOption, { bottom: 90 }]}
 					onPress={() => {
+						if (principal === null) {
+							Haptics.notificationAsync(
+								Haptics.NotificationFeedbackType.Warning
+							);
+							Alert.alert(
+								"로그인 필요",
+								"게시물을 추가하려면 로그인해야 합니다."
+							);
+							return;
+						}
+						Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 						setShowActionOptions(false);
 						router.push("/(main)/post/uploadPost"); // ← 게시물 작성 화면으로
 					}}
